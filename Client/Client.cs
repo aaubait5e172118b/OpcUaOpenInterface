@@ -11,7 +11,7 @@ using Client.utils;
 
 namespace Client
 {
-    class Client
+    public class Client
     {
 
         public Client(string url)
@@ -30,7 +30,7 @@ namespace Client
 
         private static async Task RunClient(string endpointURL)
         {
-            Console.WriteLine("1 - Create an Application Configuration.");
+            //Create an Application Configuration
             Utils.SetTraceOutput(Utils.TraceOutput.DebugAndFile);
             var config = new ApplicationConfiguration()
             {
@@ -110,24 +110,17 @@ namespace Client
             }
             else
             {
-                Console.WriteLine("    WARN: missing application certificate, using unsecure connection.");
+                //TODO: throw EX: missing application certificate, using unsecure connection
             }
 
-            Console.WriteLine("2 - Discover endpoints of {0}.", endpointURL);
+            // Discover endpoints
             var selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate);
-            Console.WriteLine("    Selected endpoint uses: {0}",
-                selectedEndpoint.SecurityPolicyUri.Substring(selectedEndpoint.SecurityPolicyUri.LastIndexOf('#') + 1));
 
-            Console.WriteLine("3 - Create a session with OPC UA server.");
+
+            //Create a session with OPC UA server
             var endpointConfiguration = EndpointConfiguration.Create(config);
             var endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
-            // opretter session til server
             var session = await Session.Create(config, endpoint, false, ".Net Core OPC UA Console Client", 60000, new UserIdentity(new AnonymousIdentityToken()), null);
-
-
-            Console.WriteLine("---------------------------------------------");
-
-
 
             // Browse namespace
             ReferenceDescriptionCollection rootNamespace = Namespace.BrowseRoot(session); // explores root namespace
@@ -156,6 +149,19 @@ namespace Client
 
 
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         private static void CertificateValidator_CertificateValidation(CertificateValidator validator, CertificateValidationEventArgs e)
