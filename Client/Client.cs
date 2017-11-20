@@ -7,18 +7,18 @@ using System.Security.Cryptography.X509Certificates;
 using Opc.Ua;
 using Opc.Ua.Client;
 
-using Client.utils;
-
 namespace Client
 {
+
     public class Client
     {
+        public Session Session { get; set; }
 
         public Client(string url)
         {
             try
             {
-                Task t = RunClient(url);
+                Task t = RunClient("opc.tcp://" + url);
                 t.Wait();
             }
             catch (Exception e)
@@ -27,8 +27,7 @@ namespace Client
             }
         }
 
-
-        private static async Task RunClient(string endpointURL)
+        private async Task RunClient(string endpointURL)
         {
             //Create an Application Configuration
             Utils.SetTraceOutput(Utils.TraceOutput.DebugAndFile);
@@ -94,7 +93,6 @@ namespace Client
                     );
 
                 config.SecurityConfiguration.ApplicationCertificate.Certificate = certificate;
-
             }
 
             haveAppCertificate = config.SecurityConfiguration.ApplicationCertificate.Certificate != null;
@@ -116,42 +114,17 @@ namespace Client
             // Discover endpoints
             var selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate);
 
-
             //Create a session with OPC UA server
             var endpointConfiguration = EndpointConfiguration.Create(config);
             var endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
             var session = await Session.Create(config, endpoint, false, ".Net Core OPC UA Console Client", 60000, new UserIdentity(new AnonymousIdentityToken()), null);
-
-            // Browse namespace
-            ReferenceDescriptionCollection rootNamespace = Namespace.BrowseRoot(session); // explores root namespace
-            foreach (var reference in rootNamespace)
-            {
-                Console.WriteLine(reference.DisplayName);
-                ReferenceDescriptionCollection subNamespace = Namespace.BrowseSub(session, reference); // explores sub namespaces
-                foreach (var nextReference in subNamespace)
-                    Console.WriteLine("+ " + nextReference.DisplayName);
-            }
-
-            // Read value on NodeId
-            Console.WriteLine(session.ReadValue(2256)); // læser values på node id 2256 (ServerStatus) -> se namespace browse i runtime console http://documentation.unified-automation.com/uasdkhp/1.0.0/html/_l2_ua_node_ids.html
-
-            // Create subscription on session
-            await ServerSubscription.Create(session, "i = 2258", 1000);
-
-
-
-
-            //TODO: Find på noget andet for at holde liv i sessionen. Alternativ kan være at: 1. opret session, 2. Fetch data, 3. luk session -> repeat hver gang ny data skal hentes. (hvor tit, hvor meget trafik generer det?)
-
-            Console.WriteLine("Running...Press any key to exit...");
-            Console.ReadKey(true); // Keep alive
-            session.Close();
-
-
+            Session = session;
         }
 
-
-
+        public void Kill()
+        {
+            Session.Close();
+        }
 
 
 

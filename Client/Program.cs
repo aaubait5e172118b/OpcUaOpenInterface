@@ -2,6 +2,7 @@
 
 using Opc.Ua;
 
+using Client.Connection;
 
 namespace Client
 {
@@ -9,8 +10,11 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            //var client = new Client("opc.tcp://" + Utils.GetHostName() + ":51210/UA/SampleServer");
-            var client = new Client("opc.tcp://127.0.0.1:51210/UA/SampleServer");
+            // test
+            var client = new Client("127.0.0.1:51210/UA/SampleServer");
+
+            Console.ReadKey();
+            client.Kill();
         }
     }
 }
