@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Client.Connection;
 using Newtonsoft.Json;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace API.Controllers
 {
@@ -30,9 +31,8 @@ namespace API.Controllers
             List<Config> confList = LoadConfig();
             if (confList == null)
                 confList = new List<Config>();
-
-            string dir = Directory.GetCurrentDirectory() + @"\config.json";
-            using (StreamWriter str = new StreamWriter(dir))
+   
+            using (StreamWriter str = new StreamWriter(GetConfDir()))
             {
                 confList.Add(this);
                 str.Write(JsonConvert.SerializeObject(confList));
@@ -43,8 +43,7 @@ namespace API.Controllers
         {
             List<Config> configs = new List<Config>();
 
-            string dir = Directory.GetCurrentDirectory() + @"\config.json";
-            using (StreamReader r = new StreamReader(dir))
+            using (StreamReader r = new StreamReader(GetConfDir()))
             {
                 string json = r.ReadToEnd();
                 configs = JsonConvert.DeserializeObject<List<Config>>(json);
@@ -70,6 +69,19 @@ namespace API.Controllers
 
             return result;
         }
+
+        private static string GetConfDir()
+        {
+            string dir = Directory.GetCurrentDirectory();
+            
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                dir += @"\config.json";
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                dir += @"/config.json";
+               
+            return dir;
+        }
     }
 
     public class Security
@@ -78,4 +90,6 @@ namespace API.Controllers
         public string CertificatePath { get; set; }
         public string Credentials { get; set; }
     }
+    
+    
 }
