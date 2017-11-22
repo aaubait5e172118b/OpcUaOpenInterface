@@ -1,11 +1,14 @@
-﻿# OpcUaRestInterface
+# OpcUaRestInterface
 ## About
 This system is a result of a student project based at Aalborg University, in an collaboration between [School of Information and Communication Technology](http://www.sict.aau.dk/) and [Department of Manufacturing and Engineering](http://www.m-tech.aau.dk/). 
 The purpose of the system is to gather all data stored on an OPC/UA enabled device and make it available via a RESTful API interface.
 
+\
 Powered by
->[![N|Solid](https://opcfoundation.org/wp-content/themes/opc/images/logo.jpg)](https://opcfoundation.org/)
->[OPC .NETSTANDARD](https://opcfoundation.org/) and [.NET Core 2.0](https://www.microsoft.com/net/core)
+
+[![N|Solid](https://opcfoundation.org/wp-content/themes/opc/images/logo.jpg)](https://opcfoundation.org/)
+
+[OPC .NETStandard](https://opcfoundation.org/) and [.NET Core 2.0](https://www.microsoft.com/net/core)
 
 # How to
 ### Requirements
@@ -27,6 +30,8 @@ A HTTP POST request can be used to add a device to the configuration file, confi
 http://localhost:3000/api/unit
 The device MUST match the config class: 
 > Name
+> 
 > Description
+> 
 > Url
 
