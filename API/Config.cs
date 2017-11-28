@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace API.Controllers
+namespace API
 {
     public class Config
     {

@@ -3,27 +3,34 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
-using Opc.Ua;
+
 using Client;
+//using Opc.Ua;
 using Newtonsoft.Json;
+using Opc.Ua;
+using Client = Client.Client;
+using Node = Client.Node;
 
 namespace API.Controllers
 {
     public class InitiateClientSession
     {
-        public List<ReferenceDescriptionCollection> ReferencesList { get; set; }
+        public List<Node> NodeCollection { get; set; }
 
         public InitiateClientSession(Config conf)
         {
-            ReferencesList = new List<ReferenceDescriptionCollection>();
+            NodeCollection = new List<Node>();
 
             Console.WriteLine(conf.Name + " configuration loaded.");
-            var client = new Client.Client(conf.Url);
+            var client = new global::Client.Client(conf.Url);
 
-            ReferencesList.Add(Client.utils.Namespace.BrowseRoot(client.Session));
-
+            List<Node> discoveredNodes = Node.Discover(client.Session);
+            
             client.Kill();
+
+            NodeCollection = Node.OrderList(discoveredNodes);
         }
     }
 
@@ -32,54 +39,25 @@ namespace API.Controllers
     {
         // GET api/unit
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<Config> Get()
         {
-            return Config.LoadConfigToString();
+            return Config.LoadConfig();
         }
 
         // GET api/unit/id
         [HttpGet("{id}")]
-        public IEnumerable<string> Get(int id)
+        public IEnumerable<Node> Get(int id)
         {
-            List<string> result = new List<string>();
-            Config conf;
+            string result = "";
+            
+            List<Config> confList = new List<Config>();
+            confList = Config.LoadConfig();
+            Config conf = confList[id];
+            
+            var init = new InitiateClientSession(conf);
 
-            try
-            {
-                List<Config> confList = new List<Config>();
-                confList = Config.LoadConfig();
-                conf = confList[id];
-            }
-            catch (Exception ex)
-            {
-                result.Add(String.Format("Error occured when loading configuration. Message: >> {0} <<", ex.Message));
-                return result;
-            }
-
-            try
-            { 
-                var init = new InitiateClientSession(conf);
-
-                foreach (var collection in init.ReferencesList)
-                {
-                    foreach (var reference in collection)
-                    {
-                        result.Add(reference.ToString());
-                    }
-                }
-            }
-            catch (NullReferenceException ex)
-            {
-                result.Add(String.Format("Error occured: Connection could not be established. Message: >> {0} <<", ex.Message));
-                return result;
-            }
-            catch (Exception ex)
-            {
-                result.Add(String.Format("Error occured. Message: >> {0} <<", ex.Message));
-                return result;
-            }
-
-            return result;
+            Console.WriteLine("JSON response created on " + conf.Name);
+            return init.NodeCollection;
         }
 
         // Add new module configuration to the config.json in root folder. 
