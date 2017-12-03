@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Opc.Ua;
 using Opc.Ua.Client;
 
@@ -25,6 +26,8 @@ namespace Client
         {
             List<Node> orderedList = new List<Node>();
             List<Node> handledNodes = new List<Node>(); // To keep track of processed nodes.
+            
+            
 
             foreach (Node node in unorderedList)
             {
@@ -47,18 +50,21 @@ namespace Client
             {
                 if (node.ParentId != null) // If node is not root. Necessary as root nodes still exist in the unordered list.
                 {
-                    if (node.ParentId.ToString() == parent.Description.NodeId.ToString() && !handledNodes.Contains(node))
-                    {
-                        parent.Children.Add(node);
-                        handledNodes.Add(node);
-                    
-                        if (debug) // For debug. Will print all relationships in console. 
+                    if (node.ParentId.Identifier == parent.Description.NodeId.Identifier)
+                    {                    
+                        if (handledNodes.Contains(node) == false)
                         {
-                            Console.WriteLine("Added " + node.Description.DisplayName + " to " + parent.Description.DisplayName);
-                        }
+                            parent.Children.Add(node);
+                            handledNodes.Add(node);
+                    
+                            if (debug) // For debug. Will print all relationships in console. 
+                            {
+                                Console.WriteLine("Added " + node.Description.DisplayName + " to " + parent.Description.DisplayName);
+                            }
                 
-                        BuildTree(unorderedList, ref handledNodes, node, debug);
-                    }
+                            BuildTree(unorderedList, ref handledNodes, node, debug);
+                        }   
+                    }    
                 }
             }
         }
