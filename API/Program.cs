@@ -14,6 +14,11 @@ namespace API
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("\n\t" + "Reach the API from:");
+            Console.WriteLine("\t" + "   \" http://localhost:3000/api/unit \"");
+            Console.WriteLine("\t" + "Reach specific unit on:");
+            Console.WriteLine("\t" + "   \" http://localhost:3000/api/unit/*index from unit overview* \"" + "\n");
+            
             BuildWebHost(args).Run();
         }
 
